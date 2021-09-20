@@ -1,4 +1,6 @@
 import axios, { AxiosError } from "axios";
+import { User } from "../components/Header";
+import TokenService from "./TokenService";
 
 export default class UserService {
   private static REQUESTURL = "http://localhost:5000/user";
@@ -11,8 +13,7 @@ export default class UserService {
       });
       return response;
     } catch (e) {
-      console.log(e);
-      return null;
+      throw e;
     }
   }
 
@@ -24,8 +25,25 @@ export default class UserService {
       });
       return response;
     } catch (e) {
-      const error = e as AxiosError;
-      return error.response;
+      throw e;
+    }
+  }
+
+  public static async getUserByToken(): Promise<User | null> {
+    try {
+      const token = TokenService.getToken();
+      const response = await axios.post<User | null>(
+        `${UserService.REQUESTURL}/auth`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (e) {
+      throw e;
     }
   }
 }
